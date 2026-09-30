@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: agricare-backend
+
+  datasource:
+    url: jdbc:h2:file:./agricare-db;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+# JWT Settings
+jwt:
+  secret: AgriCareAI2026SuperSecretKeyForJWTTokensMinimum256Bits
+  expiration: 86400000  # 24 hours in ms
+
+# File upload storage
+upload:
+  dir: ./uploads
+
+# AI Service URL
+ai:
+  service:
+    url: http://localhost:8000
+
+# CORS allowed origins
+cors:
+  allowed-origins: http://localhost:5173,http://localhost:3000
+
+logging:
+  level:
+    com.agricare: DEBUG
+    org.springframework.security: INFO

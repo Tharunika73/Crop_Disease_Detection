@@ -1,0 +1,61 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.pytest_cache/
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.env/
+backend/venv/
+
+# Environment Variables
+.env
+!.env.example
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Java / Maven
+target/
+agricare-backend/target/
+agricare-backend/cp.txt
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# Databases & Local Storage
+*.db
+*.sqlite3
+*.mv.db
+*.trace.db
+cropapp.db
+agricare-db.mv.db
+backend/cropapp.db
+agricare-backend/agricare-db.mv.db
+
+# Uploads & Media
+uploads/
+backend/uploads/
+agricare-backend/uploads/
+
+# IDE & OS Files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini

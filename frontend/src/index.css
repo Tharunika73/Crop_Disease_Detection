@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #EFEAD9;
+    color: #22301C;
+    margin: 0;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+}

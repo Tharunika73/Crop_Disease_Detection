@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cropapp
+      POSTGRES_PASSWORD: cropapp
+      POSTGRES_DB: cropapp
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://cropapp:cropapp@db:5432/cropapp
+      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+      WEATHER_API_KEY: ${WEATHER_API_KEY:-}
+      CORS_ORIGINS_RAW: ${CORS_ORIGINS_RAW:-http://localhost:5173}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/ml:/app/ml
+
+volumes:
+  pgdata:
