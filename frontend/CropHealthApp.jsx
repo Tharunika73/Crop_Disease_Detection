@@ -1168,7 +1168,7 @@ function CropsView({
                               <div className="space-y-1">
                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Original Upload</p>
                                 <img
-                                  src={`http://localhost:8000${monitoringSessions[0].imageUrls[0]}`}
+                                  src={`${api.API_BASE}${monitoringSessions[0].imageUrls[0]}`}
                                   alt="Original leaf photo"
                                   className="w-full aspect-square object-cover rounded-xl border border-slate-200 shadow-xs"
                                 />
@@ -1178,7 +1178,7 @@ function CropsView({
                             <div className="space-y-1">
                               <p className="text-[10px] font-bold text-violet-600 uppercase tracking-wider text-center">AI Attention Map</p>
                               <img
-                                src={`http://localhost:8000${monitoringSessions[0].analysis.gradcamUrl}`}
+                                src={`${api.API_BASE}${monitoringSessions[0].analysis.gradcamUrl}`}
                                 alt="Grad-CAM disease heatmap"
                                 className="w-full aspect-square object-cover rounded-xl border border-violet-300 shadow-xs ring-2 ring-violet-400/30"
                               />
