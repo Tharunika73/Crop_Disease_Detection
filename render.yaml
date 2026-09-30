@@ -19,12 +19,13 @@ services:
         value: sqlite:///./cropapp.db
 
   # 2. React Vite Frontend Static Site
-  - type: static
+  - type: web
     name: crop-health-frontend
+    runtime: static
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: dist
+    staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*
