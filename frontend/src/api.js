@@ -270,8 +270,6 @@ export async function updateReminderStatus(id, status = "COMPLETED") {
   return handleResponse(res);
 }
 
-// ─── CHATBOT ────────────────────────────────────────────────────────────────
-
 export async function askChatbot(question, cropContext = null, sessionId = null) {
   const res = await fetch(`${API_BASE}/ai/chat`, {
     method: "POST",
@@ -285,3 +283,67 @@ export async function getChatHistory() {
   const res = await fetch(`${API_BASE}/ai/chat/history`, { headers: authHeaders() });
   return handleResponse(res);
 }
+
+// ─── ADMIN ──────────────────────────────────────────────────────────────────
+
+export async function getAdminSummary() {
+  const res = await fetch(`${API_BASE}/admin/summary`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function getAdminRegions() {
+  const res = await fetch(`${API_BASE}/admin/regions`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function getRegionDiseases(region) {
+  const res = await fetch(`${API_BASE}/admin/regions/${encodeURIComponent(region)}/diseases`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function getAdminAlerts(windowDays = 30) {
+  const res = await fetch(`${API_BASE}/admin/alerts?window_days=${windowDays}`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function getAdminOutbreaks(windowDays = 30) {
+  const res = await fetch(`${API_BASE}/admin/outbreaks?window_days=${windowDays}`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function getNewDiseases(windowDays = 14) {
+  const res = await fetch(`${API_BASE}/admin/new-diseases?window_days=${windowDays}`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function getAdminFarmers(region = null) {
+  const url = region
+    ? `${API_BASE}/admin/farmers?region=${encodeURIComponent(region)}`
+    : `${API_BASE}/admin/farmers`;
+  const res = await fetch(url, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function getFarmerCrops(farmerId) {
+  const res = await fetch(`${API_BASE}/admin/farmers/${farmerId}/crops`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function getAdminModelInfo() {
+  const res = await fetch(`${API_BASE}/admin/model-info`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function triggerModelTraining(arch = "mobilenetv2", epochs = 20) {
+  const res = await fetch(
+    `${API_BASE}/admin/train-model?arch=${arch}&epochs=${epochs}`,
+    { method: "POST", headers: authHeaders() }
+  );
+  return handleResponse(res);
+}
+
+export async function getDatasetStats() {
+  const res = await fetch(`${API_BASE}/admin/dataset-stats`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+

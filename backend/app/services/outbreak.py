@@ -68,3 +68,44 @@ def detect_outbreaks(db: Session, window_days: int = 30) -> list[dict]:
         {"region": r.region, "disease": r.disease, "case_count": r.count, "threshold": settings.OUTBREAK_CASE_THRESHOLD}
         for r in rows
     ]
+
+
+def detect_new_diseases(db: Session, window_days: int = 14) -> list[dict]:
+    """
+    Detects diseases that appeared in a region for the first time within
+    the past `window_days`. A disease is 'new' in a region if it was
+    first ever scanned there within the recent window.
+    """
+    since = dt.datetime.utcnow() - dt.timedelta(days=window_days)
+
+    # Get the first-ever scan date for each (region, disease) combo
+    first_seen_rows = (
+        db.query(
+            models.User.region.label("region"),
+            models.Scan.disease.label("disease"),
+            func.min(models.Scan.created_at).label("first_seen"),
+            func.count(models.Scan.id).label("count"),
+        )
+        .join(models.CropSelection, models.CropSelection.user_id == models.User.id)
+        .join(models.Scan, models.Scan.crop_selection_id == models.CropSelection.id)
+        .filter(
+            models.User.region.isnot(None),
+            models.Scan.disease != "Healthy",
+        )
+        .group_by(models.User.region, models.Scan.disease)
+        .all()
+    )
+
+    new_diseases = []
+    for r in first_seen_rows:
+        if r.first_seen and r.first_seen >= since:
+            new_diseases.append({
+                "region": r.region,
+                "disease": r.disease,
+                "first_seen": r.first_seen.isoformat(),
+                "case_count": r.count,
+                "alert_type": "NEW_DISEASE",
+                "message": f"'{r.disease}' detected for the first time in {r.region} region.",
+            })
+
+    return new_diseases
