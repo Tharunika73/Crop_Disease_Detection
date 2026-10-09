@@ -37,9 +37,13 @@ import {
   Brain,
   Cpu,
   Database,
-  Bell,
   ChevronDown,
-  Eye
+  Eye,
+  Volume2,
+  Copy,
+  RotateCcw,
+  Bot,
+  HelpCircle
 } from "lucide-react";
 
 import * as api from "./src/api";
@@ -465,29 +469,58 @@ export default function App() {
           <ChatView
             crops={crops}
             selectedCrop={selectedCrop}
+            setSelectedCrop={setSelectedCrop}
             messages={chatMessages}
+            setMessages={setChatMessages}
             input={chatInput}
             setInput={setChatInput}
             sending={chatSending}
-            onSendMessage={async () => {
-              if (!chatInput.trim()) return;
-              const q = chatInput.trim();
-              const userMsg = { role: "user", text: q, timestamp: new Date() };
-              setChatMessages((prev) => [...prev, userMsg]);
+            user={user}
+            onSendMessage={async (overrideText) => {
+              const textToSend = (typeof overrideText === "string" ? overrideText : chatInput).trim();
+              if (!textToSend || chatSending) return;
+              const userMsg = { role: "user", text: textToSend, timestamp: new Date() };
+              const updatedHistory = [...chatMessages, userMsg];
+              setChatMessages(updatedHistory);
               setChatInput("");
               setChatSending(true);
               try {
-                const cropContext = selectedCrop ? (selectedCrop.crop_name || selectedCrop.name || selectedCrop.crop_type || "crop") : null;
-                const res = await api.askChatbot(q, cropContext, chatSessionId);
-                if (res.sessionId) setChatSessionId(res.sessionId);
-                const botMsg = { role: "bot", text: res.answer, timestamp: new Date() };
+                const cropContext = selectedCrop ? (selectedCrop.cropName || selectedCrop.crop_name || selectedCrop.name || selectedCrop.crop_type || "Tomato") : null;
+                const cropDetails = selectedCrop ? {
+                  variety: selectedCrop.variety,
+                  growth_stage: selectedCrop.growth_stage || selectedCrop.stage,
+                  health_status: selectedCrop.health_status,
+                  severity: selectedCrop.severity,
+                } : null;
+
+                const historyPayload = updatedHistory.slice(-8).map((m) => ({
+                  role: m.role === "user" ? "user" : "assistant",
+                  content: m.text,
+                }));
+
+                const res = await api.askChatbot(
+                  textToSend,
+                  cropContext,
+                  historyPayload,
+                  cropDetails,
+                  user?.location || null
+                );
+
+                const botMsg = {
+                  role: "bot",
+                  text: res.answer,
+                  suggestions: res.suggestions || [],
+                  model: res.model || "AgriCare AI Advisor",
+                  explainable: res.explainable !== false,
+                  timestamp: new Date(),
+                };
                 setChatMessages((prev) => [...prev, botMsg]);
               } catch (err) {
                 setChatMessages((prev) => [
                   ...prev,
                   {
                     role: "bot",
-                    text: "Sorry, I encountered an issue retrieving the advisory. Please try again.",
+                    text: "I apologize, but I encountered an issue retrieving the advisory. Please check your connectivity and try asking again.",
                     timestamp: new Date(),
                   },
                 ]);
@@ -1586,84 +1619,350 @@ function RemindersView({ reminders, onCompleteReminder, onRefresh }) {
 
 // ─── CHATBOT VIEW (AI ADVISOR) ───────────────────────────────────────────────
 
-function ChatView({ crops, selectedCrop, messages, input, setInput, sending, onSendMessage }) {
+function ChatView({
+  crops,
+  selectedCrop,
+  setSelectedCrop,
+  messages,
+  setMessages,
+  input,
+  setInput,
+  sending,
+  user,
+  onSendMessage,
+}) {
   const messagesEndRef = useRef(null);
+  const [copiedIdx, setCopiedIdx] = useState(null);
+  const [speakingIdx, setSpeakingIdx] = useState(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, sending]);
 
-  const quickPrompts = [
-    "How do I control early blight organically?",
-    "What is the best NPK ratio for flowering tomatoes?",
-    "How to prepare a neem oil foliar spray?",
-    "Why are the lower leaves turning yellow?",
+  const handleCopy = (text, idx) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 2000);
+  };
+
+  const handleSpeak = (text, idx) => {
+    if (!window.speechSynthesis) return;
+    if (speakingIdx === idx) {
+      window.speechSynthesis.cancel();
+      setSpeakingIdx(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    // Clean markdown symbols for cleaner voice speech
+    const cleanSpeech = text
+      .replace(/[#*_`]/g, "")
+      .replace(/\[SUGGESTION\].*$/gm, "")
+      .trim();
+    const utterance = new SpeechSynthesisUtterance(cleanSpeech);
+    utterance.rate = 1.0;
+    utterance.onend = () => setSpeakingIdx(null);
+    utterance.onerror = () => setSpeakingIdx(null);
+    setSpeakingIdx(idx);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const starterTopics = [
+    {
+      icon: AlertTriangle,
+      color: "text-amber-600 bg-amber-50 border-amber-200",
+      title: "Disease Diagnostics",
+      desc: "Understand symptoms, pathogen biology & why spots appear",
+      prompt: "Why are my lower leaves developing yellow rings and dark spots?",
+    },
+    {
+      icon: Sparkles,
+      color: "text-emerald-600 bg-emerald-50 border-emerald-200",
+      title: "Organic & Bio Sprays",
+      desc: "Neem oil, bio-fungicides & preventive plant immunity",
+      prompt: "How do I prepare a neem oil foliar spray and what is the exact dosage?",
+    },
+    {
+      icon: Droplets,
+      color: "text-blue-600 bg-blue-50 border-blue-200",
+      title: "Water & Irrigation",
+      desc: "Drip schedules, soil moisture & root hypoxia prevention",
+      prompt: "How does drip irrigation prevent fungal disease spread?",
+    },
+    {
+      icon: Leaf,
+      color: "text-teal-600 bg-teal-50 border-teal-200",
+      title: "NPK & Nutrition",
+      desc: "Balanced fertilizer dosing for vegetative & flowering stages",
+      prompt: "What is the best NPK fertilizer schedule for flowering and fruit set?",
+    },
   ];
 
+  const renderFormattedMessage = (content) => {
+    if (!content) return null;
+    const lines = content.split("\n");
+    return (
+      <div className="space-y-1.5 text-xs sm:text-sm leading-relaxed">
+        {lines.map((line, lIdx) => {
+          const trimmed = line.trim();
+          if (trimmed.startsWith("### ")) {
+            return (
+              <h4 key={lIdx} className="font-bold text-slate-900 mt-2.5 mb-1 text-sm sm:text-base border-b border-slate-200/60 pb-1">
+                {trimmed.replace("### ", "")}
+              </h4>
+            );
+          }
+          if (trimmed.startsWith("## ")) {
+            return (
+              <h3 key={lIdx} className="font-bold text-emerald-800 mt-3 mb-1 text-base">
+                {trimmed.replace("## ", "")}
+              </h3>
+            );
+          }
+          if (trimmed.startsWith("• ") || trimmed.startsWith("- ")) {
+            const bulletText = trimmed.replace(/^[•\-]\s*/, "");
+            return (
+              <div key={lIdx} className="flex items-start gap-2 pl-1">
+                <span className="text-emerald-600 font-bold">•</span>
+                <span>{renderInlineBold(bulletText)}</span>
+              </div>
+            );
+          }
+          if (/^\d+\.\s/.test(trimmed)) {
+            const numMatch = trimmed.match(/^(\d+)\.\s*(.*)/);
+            return (
+              <div key={lIdx} className="flex items-start gap-2 pl-1">
+                <span className="font-bold text-emerald-700 min-w-4">{numMatch[1]}.</span>
+                <span>{renderInlineBold(numMatch[2])}</span>
+              </div>
+            );
+          }
+          if (!trimmed) {
+            return <div key={lIdx} className="h-1" />;
+          }
+          return <p key={lIdx}>{renderInlineBold(trimmed)}</p>;
+        })}
+      </div>
+    );
+  };
+
+  const renderInlineBold = (text) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
+  const activeCropName = selectedCrop
+    ? selectedCrop.cropName || selectedCrop.crop_name || selectedCrop.name || selectedCrop.crop_type || "Selected Crop"
+    : null;
+
   return (
-    <div className="max-w-4xl mx-auto h-[calc(100vh-12rem)] flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="max-w-4xl mx-auto h-[calc(100vh-10rem)] flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-slate-200 bg-emerald-50/50 flex items-center justify-between">
+      <div className="px-4 py-3.5 border-b border-slate-200 bg-gradient-to-r from-emerald-50/70 via-teal-50/40 to-slate-50 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-xs">
-            <Sparkles className="w-5 h-5" />
+          <div className="relative">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-xs">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full animate-pulse" />
           </div>
           <div>
-            <h2 className="font-bold text-sm text-slate-900">AgriCare AI Assistant</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="font-bold text-sm sm:text-base text-slate-900">AgriCare Personal Agronomist</h2>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <ShieldCheck className="w-3 h-3" /> Explainable AI
+              </span>
+            </div>
             <p className="text-xs text-slate-500">
-              Context: {selectedCrop ? `${selectedCrop.cropName} (${selectedCrop.variety || "General"})` : "General Farm Crops"}
+              Personalized agricultural companion & scientific disease advisory
             </p>
           </div>
+        </div>
+
+        {/* Crop Context Dropdown & Clear */}
+        <div className="flex items-center gap-2">
+          {crops && crops.length > 0 && (
+            <div className="hidden sm:flex items-center gap-1.5 text-xs bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+              <Leaf className="w-3.5 h-3.5 text-emerald-600" />
+              <select
+                value={selectedCrop?.id || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (!val) {
+                    setSelectedCrop(null);
+                  } else {
+                    const found = crops.find((c) => String(c.id) === String(val));
+                    setSelectedCrop(found || null);
+                  }
+                }}
+                className="bg-transparent text-slate-700 font-medium focus:outline-none cursor-pointer"
+              >
+                <option value="">All Crops (General)</option>
+                {crops.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.cropName || c.crop_name || c.name} {c.variety ? `(${c.variety})` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {messages.length > 0 && (
+            <button
+              onClick={() => {
+                if (window.confirm("Start a new conversation session?")) {
+                  setMessages([]);
+                  if (window.speechSynthesis) window.speechSynthesis.cancel();
+                  setSpeakingIdx(null);
+                }
+              }}
+              title="Reset Conversation"
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition-all"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-slate-50/40">
         {messages.length === 0 && (
-          <div className="text-center py-12 space-y-3">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
-              <MessageSquare className="w-6 h-6" />
+          <div className="max-w-2xl mx-auto py-6 sm:py-10 space-y-6">
+            <div className="text-center space-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center mx-auto shadow-sm">
+                <Bot className="w-7 h-7" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-lg">
+                Hello{user?.name ? `, ${user.name}` : ""}! I'm your Personal Agronomist.
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
+                I don't just provide raw data — I explain the <strong>biological causes ("why it happens")</strong> behind symptoms and create step-by-step treatment protocols tailored for your {activeCropName || "crops"}.
+              </p>
             </div>
-            <h3 className="font-bold text-slate-800 text-base">Agricultural Knowledge Base</h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Ask any question regarding crop diseases, organic fungicides, dosage precautions, irrigation frequencies, or weather impacts.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 pt-2">
-              {quickPrompts.map((p, i) => (
-                <button
-                  key={i}
-                  onClick={() => setInput(p)}
-                  className="px-3 py-1.5 rounded-full text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 transition-all text-slate-700"
-                >
-                  {p}
-                </button>
-              ))}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {starterTopics.map((item, i) => {
+                const IconComponent = item.icon;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => onSendMessage(item.prompt)}
+                    className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 hover:shadow-sm text-left transition-all group flex items-start gap-3"
+                  >
+                    <div className={`p-2.5 rounded-xl border ${item.color} shrink-0`}>
+                      <IconComponent className="w-4 h-4" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <h4 className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-emerald-700 transition-colors">
+                        {item.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 leading-snug">{item.desc}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {messages.map((m, idx) => (
-          <div
-            key={idx}
-            className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-xl rounded-2xl p-4 text-xs sm:text-sm leading-relaxed shadow-xs ${
-                m.role === "user"
+        {messages.map((m, idx) => {
+          const isUser = m.role === "user";
+          return (
+            <div key={idx} className={`flex ${isUser ? "justify-end" : "justify-start"} gap-2.5 items-start`}>
+              {!isUser && (
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shrink-0 mt-1 shadow-2xs">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+              )}
+
+              <div className={`max-w-2xl rounded-2xl p-4 shadow-2xs space-y-2.5 ${
+                isUser
                   ? "bg-emerald-600 text-white rounded-br-none"
-                  : "bg-slate-100 text-slate-800 rounded-bl-none whitespace-pre-line"
-              }`}
-            >
-              {m.text}
+                  : "bg-white text-slate-800 border border-slate-200 rounded-tl-none"
+              }`}>
+                {/* Assistant header badges */}
+                {!isUser && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        {m.model || "AgriCare AI Advisor"}
+                      </span>
+                      {m.explainable && (
+                        <span className="text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Explainable Diagnosis
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <button
+                        onClick={() => handleSpeak(m.text, idx)}
+                        title={speakingIdx === idx ? "Stop speaking" : "Read aloud"}
+                        className={`p-1 rounded hover:bg-slate-100 transition-colors ${speakingIdx === idx ? "text-emerald-600" : "hover:text-slate-700"}`}
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleCopy(m.text, idx)}
+                        title="Copy to clipboard"
+                        className="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                      >
+                        {copiedIdx === idx ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Content */}
+                {isUser ? (
+                  <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{m.text}</p>
+                ) : (
+                  renderFormattedMessage(m.text)
+                )}
+
+                {/* Follow-up suggestions */}
+                {!isUser && m.suggestions && m.suggestions.length > 0 && (
+                  <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                    <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                      <HelpCircle className="w-3 h-3 text-emerald-600" /> Recommended Follow-up Questions:
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {m.suggestions.map((sug, sIdx) => (
+                        <button
+                          key={sIdx}
+                          onClick={() => onSendMessage(sug)}
+                          className="px-2.5 py-1 rounded-full text-[11px] bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 hover:border-emerald-300 transition-all text-left flex items-center gap-1"
+                        >
+                          <span>{sug}</span>
+                          <ArrowRight className="w-2.5 h-2.5 shrink-0 text-slate-400" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {isUser && (
+                <div className="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 mt-1">
+                  <UserIcon className="w-4 h-4" />
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {sending && (
-          <div className="flex justify-start">
-            <div className="bg-slate-100 rounded-2xl rounded-bl-none p-3.5 text-xs text-slate-500 flex items-center gap-2">
+          <div className="flex justify-start gap-2.5 items-start">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shrink-0 mt-1 shadow-2xs">
+              <Sparkles className="w-4 h-4 animate-pulse" />
+            </div>
+            <div className="bg-white rounded-2xl rounded-tl-none p-4 text-xs text-slate-600 flex items-center gap-2.5 border border-slate-200 shadow-2xs">
               <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
-              <span>Analyzing query with agronomical engine...</span>
+              <span>Formulating agronomic explanation and management protocol...</span>
             </div>
           </div>
         )}
@@ -1671,7 +1970,7 @@ function ChatView({ crops, selectedCrop, messages, input, setInput, sending, onS
       </div>
 
       {/* Input Bar */}
-      <div className="p-3 sm:p-4 border-t border-slate-200 bg-white">
+      <div className="p-3 sm:p-4 border-t border-slate-200 bg-white space-y-2">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -1683,17 +1982,21 @@ function ChatView({ crops, selectedCrop, messages, input, setInput, sending, onS
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask question about disease, dosage, or pest management..."
+            placeholder={`Ask your personal agronomist about symptoms, dosage, or care for ${activeCropName || "crops"}...`}
             className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
           <button
             type="submit"
             disabled={!input.trim() || sending}
-            className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white transition-all shadow-xs"
+            className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white transition-all shadow-xs flex items-center justify-center"
           >
             <Send className="w-4 h-4" />
           </button>
         </form>
+        <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
+          <span>Explainable AI • Mechanistic pathology insights • Organic & chemical guides</span>
+          <span>Press Enter to send</span>
+        </div>
       </div>
     </div>
   );

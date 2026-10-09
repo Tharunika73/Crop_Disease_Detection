@@ -270,11 +270,17 @@ export async function updateReminderStatus(id, status = "COMPLETED") {
   return handleResponse(res);
 }
 
-export async function askChatbot(question, cropContext = null, sessionId = null) {
+export async function askChatbot(question, cropContext = null, history = [], cropDetails = null, userLocation = null) {
   const res = await fetch(`${API_BASE}/ai/chat`, {
     method: "POST",
     headers: authHeaders(),
-    body: JSON.stringify({ question, crop_context: cropContext }),
+    body: JSON.stringify({
+      question,
+      crop_context: cropContext,
+      history,
+      crop_details: cropDetails,
+      user_location: userLocation,
+    }),
   });
   return handleResponse(res);
 }

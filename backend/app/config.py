@@ -17,6 +17,8 @@ class Settings(BaseSettings):
 
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "./uploads")
 
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+
     CORS_ORIGINS_RAW: str = os.getenv(
         "CORS_ORIGINS",
         "http://localhost:5173,http://localhost:5174,http://localhost:4173,http://localhost:3000",
