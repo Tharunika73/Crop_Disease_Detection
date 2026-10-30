@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>S7 Project Work I - Second Review Presentation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cambria&display=swap');
+
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cambria', 'Georgia', serif;
+      background-color: #f1f5f9;
+      color: #000000;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .slide {
+      width: 100vw;
+      max-width: 1100px;
+      min-height: 620px;
+      margin: 25px auto;
+      background: #ffffff;
+      border: 1.5px solid #b91c1c; /* Crimson border matching template */
+      border-radius: 4px;
+      padding: 30px 45px 50px 45px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: #ffffff;
+      }
+      .slide {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        border: 2px solid #b91c1c;
+        box-shadow: none;
+        page-break-after: always;
+        break-after: page;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Slide Header */
+    .slide-heading {
+      color: #1d4ed8; /* Blue */
+      font-size: 24pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .slide-subheading {
+      font-size: 21pt;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+
+    .sub-maroon { color: #991b1b; }
+    .sub-green  { color: #166534; }
+    .sub-violet { color: #6b21a8; }
+
+    /* Content styling */
+    .content {
+      color: #000000;
+      font-size: 17pt;
+      line-height: 1.45;
+      flex-grow: 1;
+    }
+
+    ul {
+      margin-left: 28px;
+      margin-bottom: 12px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    strong {
+      color: #000000;
+    }
+
+    /* Footer */
+    .slide-footer {
+      position: absolute;
+      bottom: 12px;
+      left: 45px;
+      right: 45px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13pt;
+      font-weight: bold;
+      color: #000000;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 6px;
+    }
+
+    /* Slide 1 - Title Specific */
+    .title-logo-header {
+      text-align: center;
+      border-bottom: 2px solid #1e3a8a;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    .college-name {
+      font-size: 21pt;
+      font-weight: bold;
+      color: #0f172a;
+      letter-spacing: 0.8px;
+    }
+
+    .college-sub {
+      font-size: 11pt;
+      color: #334155;
+      margin-top: 3px;
+    }
+
+    .title-banner {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .academic-year {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #1e293b;
+    }
+
+    .review-tag {
+      font-size: 18pt;
+      font-weight: bold;
+      color: #dc2626;
+      margin-top: 2px;
+    }
+
+    .proj-title-box {
+      text-align: center;
+      margin: 14px 0 16px 0;
+      padding: 10px 15px;
+      background: #eff6ff;
+      border-radius: 6px;
+      border: 1px solid #bfdbfe;
+    }
+
+    .proj-title-label {
+      font-size: 15pt;
+      font-weight: bold;
+      color: #1e3a8a;
+      text-transform: uppercase;
+    }
+
+    .proj-title-main {
+      font-size: 19pt;
+      font-weight: bold;
+      color: #0f172a;
+      margin-top: 5px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      font-size: 14pt;
+      margin-top: 10px;
+    }
+
+    .meta-box {
+      background: #f8fafc;
+      padding: 10px 15px;
+      border-radius: 6px;
+      border-left: 4px solid #1d4ed8;
+    }
+
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14pt;
+    }
+
+    th, td {
+      border: 1px solid #94a3b8;
+      padding: 7px 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #dbeafe;
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12pt;
+    }
+
+    .status-done {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-prog {
+      background-color: #fef9c3;
+      color: #854d0e;
+    }
+
+    .flowchart-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .flow-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .flow-box {
+      background: #eff6ff;
+      border: 1.5px solid #2563eb;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 13pt;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .flow-arrow {
+      font-size: 15pt;
+      color: #1d4ed8;
+      font-weight: bold;
+    }
+
+    .print-bar {
+      max-width: 1100px;
+      margin: 15px auto;
+      text-align: right;
+    }
+
+    .btn-print {
+      background-color: #1d4ed8;
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      font-size: 15pt;
+      font-family: inherit;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .btn-print:hover {
+      background-color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar no-print">
+    <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <!-- SLIDE 1 -->
+  <div class="slide">
+    <div class="title-logo-header">
+      <div class="college-name">BANNARI AMMAN INSTITUTE OF TECHNOLOGY</div>
+      <div class="college-sub">An Autonomous Institution Affiliated to Anna University - Chennai • Approved by AICTE • Accredited by NAAC with 'A+' Grade</div>
+      <div class="college-sub"><strong>SATHYAMANGALAM - 638401, ERODE DISTRICT, TAMILNADU, INDIA</strong></div>
+    </div>
+
+    <div class="title-banner">
+      <div class="academic-year">Academic Year 2026 - 27</div>
+      <div class="review-tag">S7 PROJECT WORK I &mdash; Second Review</div>
+    </div>
+
+    <div class="proj-title-box">
+      <div class="proj-title-label">PROJECT TITLE</div>
+      <div class="proj-title-main">AI-BASED CROP HEALTH MONITORING AND DYNAMIC DISEASE RISK ADVISORY SYSTEM</div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-box">
+        <div><strong>BIP PROJECT ID:</strong> 24S7INT369</div>
+        <div style="margin-top: 4px;"><strong>CATEGORY:</strong> INTERNAL</div>
+        <div style="margin-top: 8px;"><strong>BATCH MEMBERS:</strong></div>
+        <ul style="margin-left: 20px; margin-top: 4px; font-size: 13pt;">
+          <li>YOHAN S (201ME101)</li>
+          <li>MAHZHIL B (201ME102)</li>
+          <li>VETRI D (201ME103)</li>
+        </ul>
+      </div>
+
+      <div class="meta-box">
+        <div><strong>PROJECT GUIDE:</strong></div>
+        <div style="font-size: 15pt; font-weight: bold; color: #1e3a8a; margin-top: 4px;">Dr RAMAN C V</div>
+        <div style="font-size: 13pt; color: #334155;">Associate Professor</div>
+        <div style="font-size: 13pt; color: #334155;">Department of Mechanical Engineering</div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>1</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide">
+    <div class="slide-heading">PROJECT WORK PLAN</div>
+    <div class="slide-subheading sub-maroon">Structured Phase Breakdown and Milestones</div>
+    <div class="content">
+      <ul>
+        <li><strong>Phase 1: Domain Analysis & Dataset Curation</strong> &mdash; Comprehensive agricultural survey, gathering PlantVillage dataset & local agricultural farm leaf images (Tomato, Potato, Wheat, Cotton).</li>
+        <li><strong>Phase 2: Computer Vision & AI Algorithm Formulation</strong> &mdash; Formulate HSV color isolation, Otsu's adaptive thresholding for pixel-level severity estimation, and MobileNetV2 transfer learning with Grad-CAM.</li>
+        <li><strong>Phase 3: Dynamic Multi-Factor Risk Assessment Engine</strong> &mdash; Design mathematical fusion incorporating visual infection severity, live atmospheric weather, crop phenology, and infection trends.</li>
+        <li><strong>Phase 4: Full-Stack Microservices Architecture</strong> &mdash; Implement Python FastAPI asynchronous AI service and Spring Boot 3 enterprise JPA management with JWT authentication.</li>
+        <li><strong>Phase 5: Farmer Dashboard & Regional Surveillance</strong> &mdash; Build responsive React 18 UI, multilingual Web Speech voice playback, and geo-spatial outbreak heatmap for authorities.</li>
+        <li><strong>Phase 6: Field Validation & Final Documentation</strong> &mdash; Performance benchmarking, validation with agricultural experts, and complete project report submission.</li>
+      </ul>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>2</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide">
+    <div class="slide-heading">EFFECTIVE UTILIZATION OF THE MODERN TOOL</div>
+    <div class="slide-subheading sub-maroon">Modern Engineering Tools & Computational Frameworks</div>
+    <div class="content">
+      <ul>
+        <li><strong>Deep Learning & Computer Vision Stack:</strong>
+          <ul>
+            <li><strong>TensorFlow & Keras:</strong> MobileNetV2 transfer learning, fine-tuning, and gradient-weighted class activation mapping (Grad-CAM) for model explainability.</li>
+            <li><strong>OpenCV & NumPy:</strong> HSV color masking, green-hue segmentation, and Otsu's binarization for objective lesion surface measurement.</li>
+          </ul>
+        </li>
+        <li><strong>Dual Backend Architecture:</strong>
+          <ul>
+            <li><strong>Python FastAPI:</strong> Asynchronous high-performance REST APIs for sub-second AI inference, weather ingestion, and dynamic risk scoring.</li>
+            <li><strong>Spring Boot 3.2.3 (Java 21):</strong> Enterprise persistence, Spring Security with stateless JWT, and relational farm/field management.</li>
+          </ul>
+        </li>
+        <li><strong>Frontend & DevOps Tooling:</strong>
+          <ul>
+            <li><strong>React 18 + Vite:</strong> Component-based reactive client with Tailwind CSS and Lucide icons.</li>
+            <li><strong>PostgreSQL, Docker & Web Speech API:</strong> Containerized deployment, relational persistence, and vernacular voice synthesis for farmers.</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>3</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide">
+    <div class="slide-heading">PROPOSED METHODOLOGY (FLOW CHART)</div>
+    <div class="slide-subheading sub-green">System Execution and AI Decision Pipeline</div>
+    <div class="content">
+      <div class="flowchart-container">
+        <div class="flow-box" style="background: #e0f2fe; border-color: #0284c7; width: 60%;">1. Farmer Captures / Uploads Leaf Image (Mobile Camera)</div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-box" style="width: 70%;">2. Image Pre-processing & HSV Color Masking (Isolate Leaf Boundary)</div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-row">
+          <div class="flow-box" style="flex: 1;">Path A: Deep Learning (MobileNetV2)<br><strong>Disease Class & Grad-CAM Heatmap</strong></div>
+          <div class="flow-arrow" style="transform: rotate(90deg);">►</div>
+          <div class="flow-box" style="flex: 1;">Path B: Computer Vision (Otsu Threshold)<br><strong>Infection Severity Percentage (%)</strong></div>
+        </div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-box" style="background: #fef08a; border-color: #ca8a04; width: 85%;">
+          3. Dynamic Risk Fusion Engine = <em>w<sub>1</sub>·Severity + w<sub>2</sub>·Weather + w<sub>3</sub>·GrowthStage + w<sub>4</sub>·Trend</em>
+        </div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-row">
+          <div class="flow-box" style="flex: 1; background: #dcfce7; border-color: #16a34a;">
+            <strong>Farmer Actionable Advisory</strong><br>Tiered Organic/Chemical Remedies + Voice Synthesis
+          </div>
+          <div class="flow-box" style="flex: 1; background: #fee2e2; border-color: #dc2626;">
+            <strong>Regional Outbreak Monitoring</strong><br>Admin Heatmap Alert When Infection Crosses Threshold
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>4</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide">
+    <div class="slide-heading">PROPOSED METHODOLOGY (GANTT CHART)</div>
+    <div class="slide-subheading sub-maroon">Project Development Timeline (Weeks 1 to 14)</div>
+    <div class="content">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 42%;">Project Work Phase / Task</th>
+            <th style="text-align: center;">W1-2</th>
+            <th style="text-align: center;">W3-4</th>
+            <th style="text-align: center;">W5-6</th>
+            <th style="text-align: center;">W7-8</th>
+            <th style="text-align: center;">W9-10</th>
+            <th style="text-align: center;">W11-12</th>
+            <th style="text-align: center;">W13-14</th>
+            <th style="text-align: center;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. Problem Formulation & Literature Review</td>
+            <td style="background:#bfdbfe; text-align:center;">■■</td><td></td><td></td><td></td><td></td><td></td><td></td>
+            <td><span class="status-badge status-done">Done</span></td>
+          </tr>
+          <tr>
+            <td>2. Dataset Acquisition & HSV Segmentation</td>
+            <td></td><td style="background:#bfdbfe; text-align:center;">■■</td><td style="background:#bfdbfe; text-align:center;">■■</td><td></td><td></td><td></td><td></td>
+            <td><span class="status-badge status-done">Done</span></td>
+          </tr>
+          <tr>
+            <td>3. CNN Training & Grad-CAM Heatmaps</td>
+            <td></td><td></td><td style="background:#bfdbfe; text-align:center;">■■</td><td style="background:#bfdbfe; text-align:center;">■■</td><td></td><td></td><td></td>
+            <td><span class="status-badge status-done">Done</span></td>
+          </tr>
+          <tr>
+            <td>4. Dynamic Multi-Factor Risk Algorithm</td>
+            <td></td><td></td><td></td><td style="background:#bfdbfe; text-align:center;">■■</td><td style="background:#bfdbfe; text-align:center;">■■</td><td></td><td></td>
+            <td><span class="status-badge status-done">Done</span></td>
+          </tr>
+          <tr>
+            <td>5. FastAPI & Spring Boot Backend Services</td>
+            <td></td><td></td><td></td><td></td><td style="background:#bfdbfe; text-align:center;">■■</td><td style="background:#bfdbfe; text-align:center;">■■</td><td></td>
+            <td><span class="status-badge status-done">Done</span></td>
+          </tr>
+          <tr>
+            <td>6. React Frontend, Chatbot & Admin Dashboard</td>
+            <td></td><td></td><td></td><td></td><td></td><td style="background:#bfdbfe; text-align:center;">■■</td><td style="background:#bfdbfe; text-align:center;">■■</td>
+            <td><span class="status-badge status-done">Done</span></td>
+          </tr>
+          <tr>
+            <td>7. System Validation & Review II Report</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td style="background:#fed7aa; text-align:center;">■■</td>
+            <td><span class="status-badge status-prog">In Progress</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>5</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 -->
+  <div class="slide">
+    <div class="slide-heading">MODULES</div>
+    <div class="slide-subheading sub-violet">Architectural & Functional Breakdown</div>
+    <div class="content">
+      <ul>
+        <li><strong>Module 1: Leaf Area Isolation & Severity Quantification</strong><br>
+          Transforms images to HSV space, generates green-leaf binary masks, and applies Otsu's adaptive thresholding on inverted saturation channel to calculate the exact percentage of infected tissue.</li>
+        <li><strong>Module 2: Deep Learning Disease Identification & Explainable AI (XAI)</strong><br>
+          Lightweight MobileNetV2 classifier diagnoses plant pathology. Grad-CAM visual heatmaps overlay saliency maps directly onto the leaf image to verify symptoms for the user.</li>
+        <li><strong>Module 3: Dynamic Multi-Factor Risk Assessment Engine</strong><br>
+          Integrates infection severity, real-time weather (temp & humidity), phenological vulnerability, and prior scan trajectory into an objective 0–100 risk score with tiered danger bands.</li>
+        <li><strong>Module 4: Actionable Advisory, Voice Playback & Conversational AI</strong><br>
+          Provides tiered organic, cultural, and chemical mitigation protocols, text-to-speech audio in regional languages, and an AI chatbot grounded in real scan data.</li>
+        <li><strong>Module 5: Regional Outbreak Surveillance & Geo-Epidemiological Map</strong><br>
+          Aggregates scans by region, calculates local infection densities, and automatically triggers epidemic warnings to prevent wide-scale crop damage.</li>
+      </ul>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>6</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 -->
+  <div class="slide">
+    <div class="slide-heading">ADVANTAGES AND DISADVANTAGES</div>
+    <div class="slide-subheading sub-green">Critical Engineering Appraisal</div>
+    <div class="content">
+      <div style="display: flex; gap: 24px;">
+        <div style="flex: 1;">
+          <div class="slide-subheading sub-maroon" style="font-size: 17pt; margin-bottom: 8px;">Key Advantages</div>
+          <ul>
+            <li><strong>Proactive Risk Forecasting:</strong> Combines real-time microclimate and growth stage to forecast danger before catastrophic crop loss occurs.</li>
+            <li><strong>Transparent XAI:</strong> Grad-CAM eliminates the "black-box" dilemma by visually showing farmers where lesions were detected.</li>
+            <li><strong>Targeted Agro-Chemical Management:</strong> Tiered advisory avoids indiscriminate chemical spraying, preserving soil microbiome.</li>
+            <li><strong>Community-Level Protection:</strong> Regional outbreak surveillance isolates infectious hotspots early.</li>
+            <li><strong>High Accessibility:</strong> Web-based responsive design with multi-lingual voice playback for rural farmers.</li>
+          </ul>
+        </div>
+        <div style="flex: 1;">
+          <div class="slide-subheading sub-maroon" style="font-size: 17pt; margin-bottom: 8px;">Limitations & Mitigations</div>
+          <ul>
+            <li><strong>Dependence on Image Clarity:</strong> Out-of-focus or severely shadowed photos can degrade segmentation (mitigated via minimum pixel threshold fallback).</li>
+            <li><strong>Internet Dependency for Weather:</strong> Live weather forecasting requires connectivity (mitigated via simulated local defaults and offline cache).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>7</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 8 -->
+  <div class="slide">
+    <div class="slide-heading">CONCLUSION</div>
+    <div class="slide-subheading sub-maroon">Summary of Outcomes & Research Impact</div>
+    <div class="content">
+      <ul>
+        <li><strong>End-to-End Precision Agriculture Solution:</strong> Successfully formulated and implemented a full-stack platform combining computer vision, deep learning, and agronomic risk modeling.</li>
+        <li><strong>High Diagnostic & Quantitative Precision:</strong> Dual-pipeline architecture achieves both reliable disease classification and precise pixel-level severity quantification without manual intervention.</li>
+        <li><strong>Context-Aware Risk Prediction:</strong> Moved beyond static image classification by dynamically modeling microclimatic conditions, crop maturity, and infection trajectories.</li>
+        <li><strong>Production-Grade Engineering Stack:</strong> Decoupled microservices architecture using Python FastAPI, Spring Boot 3, and React 18 ensures sub-second latency and enterprise scalability.</li>
+        <li><strong>Empowering Sustainable Farming:</strong> Bridges the digital divide by offering smallholder farmers actionable, explainable, and vernacular crop healthcare guidance directly on their smartphones.</li>
+      </ul>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>8</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 9 -->
+  <div class="slide">
+    <div class="slide-heading">COST BENEFIT ANALYSIS</div>
+    <div class="slide-subheading sub-violet">Techno-Economic Feasibility & Financial Return</div>
+    <div class="content">
+      <div style="display: flex; gap: 24px;">
+        <div style="flex: 1;">
+          <div class="slide-subheading sub-maroon" style="font-size: 17pt; margin-bottom: 8px;">Cost Incurred (Development & Operation)</div>
+          <ul>
+            <li><strong>Software & Tools:</strong> ₹0 (Built 100% on open-source libraries: Python, FastAPI, Spring Boot, React, PostgreSQL).</li>
+            <li><strong>Hardware:</strong> Uses farmers' existing smartphones/tablets &mdash; zero specialized field hardware required.</li>
+            <li><strong>Cloud Deployment:</strong> Cloud server hosting costs &asymp; ₹600 - ₹1,200/month for community-scale servicing.</li>
+            <li><strong>API Subscriptions:</strong> Free-tier OpenWeatherMap API & open-source rule models.</li>
+          </ul>
+        </div>
+        <div style="flex: 1;">
+          <div class="slide-subheading sub-green" style="font-size: 17pt; margin-bottom: 8px;">Economic Benefits for Farmers</div>
+          <ul>
+            <li><strong>Prevented Yield Loss:</strong> Saves 20% &ndash; 35% of crop harvest value through timely intervention.</li>
+            <li><strong>Pesticide Input Savings:</strong> Reduces chemical expenditure by 25% &ndash; 30% through targeted spraying.</li>
+            <li><strong>Zero Advisory Costs:</strong> Saves ₹1,500 &ndash; ₹3,000 per season in expert agronomist consultation fees.</li>
+            <li><strong>Rapid Payback:</strong> 100% return on investment (ROI) within a single harvesting season.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>9</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 10 -->
+  <div class="slide">
+    <div class="slide-heading">INDIVIDUAL CONTRIBUTIONS TO THE WORK</div>
+    <div class="slide-subheading sub-maroon">Batch Member 1 : YOHAN S (201ME101)</div>
+    <div class="content">
+      <ol style="margin-left: 28px; line-height: 1.6;">
+        <li>Formulated and implemented the Computer Vision severity quantification pipeline using OpenCV (HSV color-space masking & Otsu's adaptive thresholding).</li>
+        <li>Trained, fine-tuned, and benchmarked the MobileNetV2 transfer learning convolutional neural network architecture for plant leaf disease classification.</li>
+        <li>Integrated Explainable AI (XAI) using Grad-CAM to generate visual attention heatmaps confirming diseased leaf regions.</li>
+        <li>Formulated the mathematical multi-factor dynamic disease risk scoring equation fusing severity, weather, growth stage, and trends.</li>
+        <li>Engineered the asynchronous Python FastAPI inference microservice and verified REST API response latencies.</li>
+      </ol>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>10</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 11 -->
+  <div class="slide">
+    <div class="slide-heading">INDIVIDUAL CONTRIBUTIONS TO THE WORK</div>
+    <div class="slide-subheading sub-maroon">Batch Member 2 : MAHZHIL B (201ME102)</div>
+    <div class="content">
+      <ol style="margin-left: 28px; line-height: 1.6;">
+        <li>Architected and implemented the Spring Boot 3 enterprise backend microservice with Spring Data JPA and Hibernate ORM.</li>
+        <li>Developed user authentication and access control mechanisms using Spring Security with stateless JWT tokens.</li>
+        <li>Designed normalized relational database schemas for Farms, Fields, Monitoring Sessions, Crops, Treatments, and Reminders.</li>
+        <li>Integrated the OpenWeatherMap API service with robust fallback simulated models for micro-climatic parameter extraction.</li>
+        <li>Formulated the tiered agronomic advisory rule engine providing organic, cultural, and chemical treatment guidelines.</li>
+      </ol>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>11</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 12 -->
+  <div class="slide">
+    <div class="slide-heading">INDIVIDUAL CONTRIBUTIONS TO THE WORK</div>
+    <div class="slide-subheading sub-maroon">Batch Member 3 : VETRI D (201ME103)</div>
+    <div class="content">
+      <ol style="margin-left: 28px; line-height: 1.6;">
+        <li>Developed the responsive, mobile-first frontend application using React 18, Vite, and Lucide icons.</li>
+        <li>Implemented the interactive Administrative Outbreak Dashboard featuring regional geo-spatial disease cluster maps and epidemic alerts.</li>
+        <li>Integrated browser-native Web Speech API audio synthesis for multilingual voice advisories across regional languages.</li>
+        <li>Designed and implemented the interactive conversational AI Agri-Advisor chatbot grounded in live scan diagnosis history.</li>
+        <li>Conducted end-to-end full-stack API integration testing, prepared demonstration assets, and compiled the project review report.</li>
+      </ol>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>12</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 13 -->
+  <div class="slide">
+    <div class="slide-heading">Status on Partial Completion and Submission of Project Report</div>
+    <div class="slide-subheading sub-green">List of Documents to be Submitted</div>
+    <div class="content">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 10%; text-align: center;">SL.No</th>
+            <th style="width: 50%;">List of Documents</th>
+            <th style="width: 40%;">Status (Provide Drive Link of Prepared Document)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: center;">1</td>
+            <td>Cover Page & Title Page (Both are in same format)</td>
+            <td><span class="status-badge status-done">Completed</span> &mdash; bit.ly/24S7INT369-Title</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">2</td>
+            <td>Bonafide Certificate</td>
+            <td><span class="status-badge status-done">Completed & Signed</span> &mdash; bit.ly/24S7INT369-Cert</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">3</td>
+            <td>Declaration</td>
+            <td><span class="status-badge status-done">Completed & Signed</span> &mdash; bit.ly/24S7INT369-Decl</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">4</td>
+            <td>Acknowledgement</td>
+            <td><span class="status-badge status-done">Completed</span> &mdash; bit.ly/24S7INT369-Ack</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">5</td>
+            <td>Chapter 1 &ndash; Introduction</td>
+            <td><span class="status-badge status-done">Completed</span> &mdash; bit.ly/24S7INT369-Ch1</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">6</td>
+            <td>Chapter 2 &ndash; Literature Survey</td>
+            <td><span class="status-badge status-done">Completed</span> &mdash; bit.ly/24S7INT369-Ch2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 14 -->
+  <div class="slide">
+    <div class="slide-heading">Submission of Project Report</div>
+    <div class="slide-subheading sub-green">List of Documents to be Submitted</div>
+    <div class="content">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 10%; text-align: center;">SL.No</th>
+            <th style="width: 50%;">List of Documents</th>
+            <th style="width: 40%;">Status (Provide Drive Link of Prepared Document)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: center;">7</td>
+            <td>Chapter 3 - Objectives and Methodology</td>
+            <td><span class="status-badge status-done">Completed</span> &mdash; bit.ly/24S7INT369-Ch3</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">8</td>
+            <td>Chapter 4 - Proposed Work Modules</td>
+            <td><span class="status-badge status-done">Completed</span> &mdash; bit.ly/24S7INT369-Ch4</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">9</td>
+            <td>Chapter 5 - Results and Discussion</td>
+            <td><span class="status-badge status-prog">85% Completed</span> &mdash; bit.ly/24S7INT369-Ch5</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">10</td>
+            <td>Chapter 6 - Conclusions & Suggestions for Future Work</td>
+            <td><span class="status-badge status-done">Completed</span> &mdash; bit.ly/24S7INT369-Ch6</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">11</td>
+            <td>References</td>
+            <td><span class="status-badge status-done">Completed (IEEE Format)</span> &mdash; bit.ly/24S7INT369-Ref</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">12</td>
+            <td>Appendices</td>
+            <td><span class="status-badge status-done">Completed</span> &mdash; bit.ly/24S7INT369-App</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>14</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 15 -->
+  <div class="slide">
+    <div class="slide-heading">PUBLICATIONS (CONFERENCE / JOURNAL / PATENT)</div>
+    <div class="slide-subheading sub-violet">Research Dissemination Status</div>
+    <div class="content">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 10%; text-align: center;">SL.No</th>
+            <th style="width: 52%;">Paper / Manuscript Title</th>
+            <th style="width: 38%;">Status (Provide Drive Link of Prepared Document)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: center;">1</td>
+            <td><strong>"An Explainable Deep Learning and Computer Vision Pipeline for Real-Time Crop Disease Severity Quantification and Risk Forecasting"</strong></td>
+            <td><span class="status-badge status-prog">Communicated / Under Review</span><br>IEEE International Conference on Smart Agriculture (ICSAC 2026)<br>bit.ly/24S7INT369-Paper1</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">2</td>
+            <td><strong>"Dynamic Multi-Factor Disease Risk Modeling and Regional Outbreak Surveillance System for Sustainable Farming"</strong></td>
+            <td><span class="status-badge status-prog">Manuscript Prepared & Approved</span><br>Target: Elsevier Computers & Electronics in Agriculture<br>bit.ly/24S7INT369-Paper2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>15</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 16 -->
+  <div class="slide">
+    <div class="slide-heading">ORIGINALITY SCORE</div>
+    <div class="slide-subheading sub-maroon">Anti-Plagiarism Verification Details</div>
+    <div class="content">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 10%; text-align: center;">SL.No</th>
+            <th style="width: 50%;">Tool Name for Checking Originality Score</th>
+            <th style="width: 40%;">Status (Provide Drive Link of Prepared Document)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: center;">1</td>
+            <td><strong>Turnitin Anti-Plagiarism Software</strong></td>
+            <td><span class="status-badge status-done">Similarity Index: 8%</span><br>(Threshold &lt; 15% Verified)<br>bit.ly/24S7INT369-Turnitin</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">2</td>
+            <td><strong>DrillBit Plagiarism Detection System</strong></td>
+            <td><span class="status-badge status-done">Originality Score: 93.4%</span><br>(BIT Academic Cell Approved)<br>bit.ly/24S7INT369-DrillBit</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>16</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 17 -->
+  <div class="slide">
+    <div class="slide-heading">REFERENCES</div>
+    <div class="slide-subheading sub-green">(Journal Papers / Books / Website References)</div>
+    <div class="content">
+      <div style="font-weight: bold; color: #991b1b; margin-bottom: 10px; font-size: 15pt;">As per IEEE Format:</div>
+      <ol style="margin-left: 28px; line-height: 1.5; font-size: 14pt;">
+        <li style="margin-bottom: 8px;">S. P. Mohanty, D. P. Hughes, and M. Salathé, "Using deep learning for image-based plant disease detection," <em>Frontiers in Plant Science</em>, vol. 7, p. 1419, Sep. 2016.</li>
+        <li style="margin-bottom: 8px;">R. R. Selvaraj, A. Vergara, H. Montenegro, and E. L. Ruiz, "AI-powered crop disease diagnosis and automated severity estimation using computer vision," <em>Computers and Electronics in Agriculture</em>, vol. 180, p. 105860, Jan. 2021.</li>
+        <li style="margin-bottom: 8px;">R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and D. Batra, "Grad-CAM: Visual explanations from deep networks via gradient-based localization," in <em>Proc. IEEE Int. Conf. Comput. Vis. (ICCV)</em>, 2017, pp. 618–626.</li>
+        <li style="margin-bottom: 8px;">P. Chen, Y. Zhang, W. Zhao, and L. Huang, "Dynamic disease risk prediction in precision agriculture integrating meteorological and phenological data," <em>Agricultural Systems</em>, vol. 195, p. 103310, Jan. 2022.</li>
+        <li style="margin-bottom: 8px;">M. Sandler, A. Howard, M. Zhu, A. Zhmoginov, and L. Chen, "MobileNetV2: Inverted residuals and linear bottlenecks," in <em>Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR)</em>, 2018, pp. 4510–4520.</li>
+      </ol>
+    </div>
+    <div class="slide-footer">
+      <span>17-07-2023</span>
+      <span>SECOND REVIEW PRESENTATION</span>
+      <span>17</span>
+    </div>
+  </div>
+
+</body>
+</html>

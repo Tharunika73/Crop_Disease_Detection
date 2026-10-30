@@ -39,6 +39,7 @@ import {
   Database,
   ChevronDown,
   Eye,
+  Bell,
   Volume2,
   Copy,
   RotateCcw,
