@@ -17,6 +17,11 @@ services:
         value: "*"
       - key: DATABASE_URL
         value: sqlite:///./cropapp.db
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: WEATHER_API_KEY
+        sync: false
+
 
   # 2. React Vite Frontend Static Site
   - type: web
