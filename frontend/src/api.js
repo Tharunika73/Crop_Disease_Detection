@@ -1,8 +1,9 @@
-let rawBase = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+let rawBase = import.meta.env.VITE_API_BASE || "";
 if (rawBase && !rawBase.startsWith("http://") && !rawBase.startsWith("https://")) {
   rawBase = `https://${rawBase}`;
 }
 export const API_BASE = rawBase.replace(/\/$/, "");
+
 
 
 function authHeaders(isMultipart = false) {
